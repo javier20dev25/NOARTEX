@@ -1,10 +1,10 @@
 # NOARTEX
 
-![NOARTEX](brand/noartex.jpg)
+<img src="brand/noartex.jpg" alt="NOARTEX" width="160" />
 
 Defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats.
 
-Release: `v0.9.1` (Skills Library + Real-Time Reactive Defense)  
+Release: `v0.9.2` (Complete Defensive Skills Library + Real-Time Reactive Defense)  
 Acceptance status: 125/125 tests passed (220/220 verification checks across milestones M1 through M9).  
 Ecosystem: Coordinates with Sentinel CLI, Sentinel Audit, Sentinel Oracle, and Sentinel Runtime.
 
