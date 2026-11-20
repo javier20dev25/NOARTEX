@@ -1,0 +1,12 @@
+[submodule "stack/sentinel-cli"]
+	path = stack/sentinel-cli
+	url = https://github.com/javier20dev25/sentinel-cli.git
+[submodule "stack/sentinel-audit"]
+	path = stack/sentinel-audit
+	url = https://github.com/javier20dev25/sentinel-audit.git
+[submodule "stack/sentinel-oracle"]
+	path = stack/sentinel-oracle
+	url = https://github.com/javier20dev25/sentinel-oracle.git
+[submodule "stack/sentinel-runtime"]
+	path = stack/sentinel-runtime
+	url = https://github.com/javier20dev25/sentinel-runtime.git

@@ -134,16 +134,58 @@ See `docs/TOOLS_AND_REVERSE_ENGINEERING.md` for:
 
 ## Repository layout (current)
 
+- `AGENTS.md`: model-agnostic agent instructions for this repository
 - `noartex.py`: Python entry wrapper
 - `cli/noartex/cli.py`: CLI implementation and command surface
 - `core/`: contracts, orchestrator, discovery, policy, session, audit, intelligence, memory, adapter base
 - `adapters/`: sentinel CLI, host/agent/web observers, defense lab
 - `schemas/`: JSON schemas (e.g. triage verdict)
 - `skills/`: canonical and coordination skills
+- `stack/`: Git submodules for natural-stack repositories (`sentinel-cli`, `sentinel-audit`, `sentinel-oracle`, `sentinel-runtime`)
+- `scripts/`: bootstrap helpers for stack submodules
 - `tests/acceptance/m1-m8/`: acceptance suites
-- `docs/`: architecture graph, images, inventories, coordination notes
+- `docs/`: architecture graph, images, inventories, coordination/release/test-evidence notes
+- `.github/workflows/ci.yml`: GitHub Actions CI for environment-independent checks/suites
 
 Local/dev artifacts such as `data/test_*` and generated caches are excluded from version control by `.gitignore`.
+
+## Natural stack and installation
+
+NOARTEX is designed to coordinate with the Sentinel ecosystem. The natural stack components are:
+
+| Component | Repository | Role in stack | NOARTEX integration |
+|---|---|---|---|
+| Sentinel CLI | https://github.com/javier20dev25/sentinel-cli | SAST, CI/CD, supply-chain and reporting commands | Native in-tree adapter (`adapter.sentinel.cli`) via local binary |
+| Sentinel Audit | https://github.com/javier20dev25/sentinel-audit | Coverage-aware audit orchestration and evidence workflows | External coordination (skills/runbooks), no in-tree adapter |
+| Sentinel Oracle | https://github.com/javier20dev25/sentinel-oracle | Isolated merge-authorization authority/enclave | External coordination (skills/runbooks), no in-tree adapter |
+| Sentinel Runtime | https://github.com/javier20dev25/sentinel-runtime | Runtime telemetry/evidence service (observe-only) | External coordination (skills/runbooks), no in-tree adapter |
+
+### Clone NOARTEX with stack repositories
+
+This repository tracks the stack repositories as Git submodules under `stack/`.
+
+```bash
+git clone --recurse-submodules https://github.com/javier20dev25/noartex.git
+cd noartex
+```
+
+If you already cloned without submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
+You can also use the bootstrap scripts:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/bootstrap-stack.ps1
+```
+
+```bash
+bash scripts/bootstrap-stack.sh
+```
+
+The bootstrap/submodule flow clones the public stack repositories listed above. Each component has its own prerequisites, build/install steps, licenses, and trust boundaries; review and install them according to your environment and authorization. Sentinel Cloud is not embedded in NOARTEX and is not cloned by this flow.
 
 ## Usage (local prototype)
 

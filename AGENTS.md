@@ -18,8 +18,10 @@ NOARTEX is a defensive coordination and capability infrastructure prototype for 
 - `adapters/`: `sentinel_cli`, `observer_host`, `observer_agent`, `observer_web`, `defense_lab`.
 - `schemas/`: JSON schemas (e.g. triage verdict).
 - `skills/`: canonical and coordination skills.
+- `stack/`: Git submodules for natural-stack repos (`sentinel-cli`, `sentinel-audit`, `sentinel-oracle`, `sentinel-runtime`); clone with `--recurse-submodules` or run `scripts/bootstrap-stack.ps1|.sh`.
 - `tests/acceptance/m1-m8/`: acceptance suites and fixtures.
 - `docs/`: architecture graph/images, tools/reverse-engineering, skills/ARTEX notes, release reconciliation, test evidence.
+- `.github/workflows/ci.yml`: CI for environment-independent checks/suites.
 
 `data/`, caches, logs, and local runtime artifacts are excluded by `.gitignore`. Do not commit secrets, API keys, local `.noartex` state, or `data/test_*` artifacts.
 
