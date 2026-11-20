@@ -564,7 +564,7 @@ def test_m3_neg1_file_observer_unauthorized_path():
         operation="observer.host.files",
         actor=ActorIdentity(agent_id="test:m3"),
         session_id="sess_m3_test",
-        parameters={"target_path": "C:\\Windows"},
+        parameters={"target_path": str(ROOT / "core")},
     )
     dec = _allow_decision(req.task_id)
     result = adapter.execute(req, dec)
@@ -588,7 +588,7 @@ def test_m3_neg2_file_observer_nonexistent_path():
         operation="observer.host.files",
         actor=ActorIdentity(agent_id="test:m3"),
         session_id="sess_m3_test",
-        parameters={"target_path": "C:\\this_path_absolutely_does_not_exist_m3_42"},
+        parameters={"target_path": str(ROOT / "nonexistent_m3_42")},
     )
     dec = _allow_decision(req.task_id)
     result = adapter.execute(req, dec)

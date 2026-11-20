@@ -143,7 +143,7 @@ def test_m2_sast_scan_execution():
 
 def test_m2_neg_missing_binary():
     """M2-C1: Binario no instalado -> UNAVAILABLE, NUNCA 'CLEAN' ni crash."""
-    mock_adapter = SentinelCLIAdapter(binary_path="C:\\nonexistent\\sentinel_missing.exe")
+    mock_adapter = SentinelCLIAdapter(binary_path=str(ROOT / "nonexistent" / "sentinel_missing_binary"))
     req = TaskRequest(
         operation="sentinel.sast.scan",
         actor=ActorIdentity(agent_id="test"),
@@ -168,7 +168,7 @@ def test_m2_neg_nonexistent_target_path():
         operation="sentinel.sast.scan",
         actor=ActorIdentity(agent_id="test"),
         session_id="sess_mock",
-        parameters={"target_path": "C:\\ruta_que_no_existe_para_nada_12345"},
+        parameters={"target_path": str(ROOT / "nonexistent_dir_12345")},
     )
     dec = PolicyDecision(task_id=req.task_id, decision=DecisionKind.ALLOW)
     res = adapter.execute(req, dec)
@@ -195,12 +195,12 @@ def test_m2_neg_path_traversal_blocked():
     )
     adapter = SentinelCLIAdapter(metadata=restricted_meta)
 
-    # Intentar escanear el directorio Windows fuera de la raíz autorizada
+    # Intentar escanear un directorio fuera de la raíz autorizada (tests/)
     req = TaskRequest(
         operation="sentinel.sast.scan",
         actor=ActorIdentity(agent_id="test"),
         session_id="sess_mock",
-        parameters={"target_path": "C:\\Windows"},
+        parameters={"target_path": str(ROOT / "core")},
     )
     dec = PolicyDecision(task_id=req.task_id, decision=DecisionKind.ALLOW)
     res = adapter.execute(req, dec)
