@@ -1,0 +1,26 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local/dev runtime and test artifacts (not for release repo)
+data/
+!data/.gitkeep
+*.log
+
+# Environment/editor
+.env
+.env.*
+.venv/
+venv/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

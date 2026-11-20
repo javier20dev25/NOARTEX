@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NOARTEX Triage Verdict Contract",
+  "type": "object",
+  "required": [
+    "verdict_id",
+    "incident_id",
+    "classification",
+    "severity",
+    "confidence",
+    "summary",
+    "evidence_refs",
+    "timeline",
+    "uncertainty",
+    "created_at"
+  ],
+  "properties": {
+    "verdict_id": {
+      "type": "string",
+      "pattern": "^vrd_[a-zA-Z0-9_-]+$"
+    },
+    "incident_id": {
+      "type": "string",
+      "pattern": "^inc_[a-zA-Z0-9_-]+$"
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["CONFIRMED", "PARTIAL", "UNKNOWN", "FALSE_POSITIVE"]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW", "UNKNOWN"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 5
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "event_type", "description"],
+        "properties": {
+          "timestamp": { "type": "string" },
+          "event_type": { "type": "string" },
+          "description": { "type": "string" },
+          "actor": { "type": ["string", "null"] },
+          "evidence_ref": { "type": ["string", "null"] },
+          "data": { "type": "object" }
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": ["coverage_gaps", "contradictions", "epistemic_limitations"],
+      "properties": {
+        "coverage_gaps": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "contradictions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "epistemic_limitations": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "false_positive_rationale": {
+      "type": ["object", "null"],
+      "properties": {
+        "rule_id": { "type": "string" },
+        "justification": { "type": "string" },
+        "original_finding": { "type": "string" }
+      }
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "risk_level"],
+        "properties": {
+          "action": { "type": "string" },
+          "risk_level": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "created_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

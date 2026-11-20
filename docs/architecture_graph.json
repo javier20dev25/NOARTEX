@@ -1,0 +1,681 @@
+{
+  "meta": {
+    "product": "NOARTEX",
+    "declared_release_target": "v0.8.0-m8",
+    "observed_cli_version": "0.6.0-m6",
+    "observed_core_version_doctor": "1.0.0-m1",
+    "contract_version": "1.0",
+    "capabilities_total_observed": 50,
+    "adapters_observed": 5,
+    "status": "prototype-lab; release identity not frozen",
+    "purpose": "Compact machine-readable architecture graph for AI agents"
+  },
+  "nodes": [
+    {
+      "id": "layer.interface",
+      "type": "layer",
+      "label": "Interface",
+      "description": "CLI entrypoints and agent skill surfaces"
+    },
+    {
+      "id": "layer.core",
+      "type": "layer",
+      "label": "Core",
+      "description": "Contracts, orchestration, policy, sessions, audit, discovery, intelligence, memory"
+    },
+    {
+      "id": "layer.adapters",
+      "type": "layer",
+      "label": "Adapters",
+      "description": "Tool and environment integrations behind AdapterInterface"
+    },
+    {
+      "id": "layer.schemas",
+      "type": "layer",
+      "label": "Schemas",
+      "description": "Validation schemas"
+    },
+    {
+      "id": "layer.tests",
+      "type": "layer",
+      "label": "Acceptance Tests",
+      "description": "M1-M8 acceptance suites (lab/prototype evidence)"
+    },
+    {
+      "id": "layer.skills",
+      "type": "layer",
+      "label": "Skills",
+      "description": "Canonical and coordination skills for agent usage"
+    },
+    {
+      "id": "layer.state",
+      "type": "layer",
+      "label": "Runtime State (local)",
+      "description": "~/.noartex and data dirs, not release artifacts",
+      "external": true
+    },
+    {
+      "id": "mod.launcher",
+      "type": "module",
+      "label": "Global launcher (.cmd)",
+      "path": "C:/Users/sleyt/.gemini/antigravity/bin/noartex.cmd"
+    },
+    {
+      "id": "mod.entry",
+      "type": "module",
+      "label": "Python entry wrapper",
+      "path": "noartex.py"
+    },
+    {
+      "id": "mod.cli",
+      "type": "module",
+      "label": "CLI implementation",
+      "path": "cli/noartex/cli.py"
+    },
+    {
+      "id": "mod.contracts",
+      "type": "module",
+      "label": "Contracts and Models",
+      "path": "core/contracts/models.py"
+    },
+    {
+      "id": "mod.orchestrator",
+      "type": "module",
+      "label": "Orchestrator",
+      "path": "core/orchestrator.py"
+    },
+    {
+      "id": "mod.registry",
+      "type": "module",
+      "label": "Capability Registry",
+      "path": "core/discovery/registry.py"
+    },
+    {
+      "id": "mod.policy",
+      "type": "module",
+      "label": "Policy Engine",
+      "path": "core/policy/engine.py"
+    },
+    {
+      "id": "mod.approval",
+      "type": "module",
+      "label": "Approvals",
+      "path": "core/policy/approval.py"
+    },
+    {
+      "id": "mod.killswitch",
+      "type": "module",
+      "label": "Kill Switch",
+      "path": "core/policy/killswitch.py"
+    },
+    {
+      "id": "mod.session",
+      "type": "module",
+      "label": "Session Manager",
+      "path": "core/session/manager.py"
+    },
+    {
+      "id": "mod.audit",
+      "type": "module",
+      "label": "Audit Store (JSONL)",
+      "path": "core/audit/store.py"
+    },
+    {
+      "id": "mod.intel",
+      "type": "module",
+      "label": "Intelligence",
+      "path": "core/intelligence/"
+    },
+    {
+      "id": "mod.memory",
+      "type": "module",
+      "label": "Memory and Case Manager",
+      "path": "core/memory/case_manager.py"
+    },
+    {
+      "id": "mod.adapter_base",
+      "type": "module",
+      "label": "Adapter Interface",
+      "path": "core/adapters/base.py"
+    },
+    {
+      "id": "adapter.sentinel.cli",
+      "type": "adapter",
+      "label": "Sentinel CLI Adapter",
+      "path": "adapters/sentinel_cli/adapter.py",
+      "status": "AVAILABLE",
+      "capabilities": [
+        "sentinel.sast.scan",
+        "sentinel.cicd.audit",
+        "sentinel.supply_chain.audit",
+        "sentinel.report.generate"
+      ]
+    },
+    {
+      "id": "adapter.observer.host",
+      "type": "adapter",
+      "label": "Host Observer",
+      "path": "adapters/observer_host/adapter.py",
+      "status": "AVAILABLE",
+      "capabilities": [
+        "observer.host.processes",
+        "observer.host.files",
+        "observer.host.network"
+      ]
+    },
+    {
+      "id": "adapter.observer.agent",
+      "type": "adapter",
+      "label": "Agent Observer",
+      "path": "adapters/observer_agent/adapter.py",
+      "status": "AVAILABLE",
+      "capabilities": [
+        "observer.agent.activity",
+        "observer.agent.denials"
+      ]
+    },
+    {
+      "id": "adapter.observer.web",
+      "type": "adapter",
+      "label": "Web Observer",
+      "path": "adapters/observer_web/adapter.py",
+      "status": "AVAILABLE",
+      "capabilities": [
+        "observer.web.headers",
+        "observer.web.dns"
+      ]
+    },
+    {
+      "id": "adapter.defense.lab",
+      "type": "adapter",
+      "label": "Defense Lab",
+      "path": "adapters/defense_lab/adapter.py",
+      "status": "AVAILABLE",
+      "capabilities": [
+        "defense.artifact.quarantine",
+        "defense.artifact.tag",
+        "defense.host.isolate",
+        "defense.host.remediate",
+        "defense.action.rollback"
+      ]
+    },
+    {
+      "id": "domain.core",
+      "type": "capability_domain",
+      "label": "core",
+      "count": 10,
+      "capabilities": [
+        "core.capabilities.list",
+        "core.capabilities.describe",
+        "core.doctor.health",
+        "core.session.create",
+        "core.session.list",
+        "core.session.show",
+        "core.session.close",
+        "core.task.status",
+        "core.task.result",
+        "core.audit.query"
+      ]
+    },
+    {
+      "id": "domain.intelligence",
+      "type": "capability_domain",
+      "label": "intelligence",
+      "count": 6,
+      "capabilities": [
+        "intelligence.correlate",
+        "intelligence.incident.create",
+        "intelligence.incident.update",
+        "intelligence.incident.show",
+        "intelligence.incident.list",
+        "intelligence.triage.evaluate"
+      ]
+    },
+    {
+      "id": "domain.policy",
+      "type": "capability_domain",
+      "label": "policy",
+      "count": 7,
+      "capabilities": [
+        "policy.status",
+        "policy.approval.grant",
+        "policy.approval.revoke",
+        "policy.approvals.list",
+        "policy.killswitch.activate",
+        "policy.killswitch.deactivate",
+        "policy.session.revoke"
+      ]
+    },
+    {
+      "id": "domain.observer",
+      "type": "capability_domain",
+      "label": "observer",
+      "count": 7,
+      "capabilities": [
+        "observer.host.processes",
+        "observer.host.files",
+        "observer.host.network",
+        "observer.agent.activity",
+        "observer.agent.denials",
+        "observer.web.headers",
+        "observer.web.dns"
+      ]
+    },
+    {
+      "id": "domain.sentinel",
+      "type": "capability_domain",
+      "label": "sentinel",
+      "count": 4,
+      "capabilities": [
+        "sentinel.sast.scan",
+        "sentinel.cicd.audit",
+        "sentinel.supply_chain.audit",
+        "sentinel.report.generate"
+      ]
+    },
+    {
+      "id": "domain.defense",
+      "type": "capability_domain",
+      "label": "defense",
+      "count": 5,
+      "capabilities": [
+        "defense.artifact.quarantine",
+        "defense.artifact.tag",
+        "defense.host.isolate",
+        "defense.host.remediate",
+        "defense.action.rollback"
+      ]
+    },
+    {
+      "id": "domain.memory",
+      "type": "capability_domain",
+      "label": "memory",
+      "count": 11,
+      "capabilities": [
+        "memory.case.create",
+        "memory.case.show",
+        "memory.case.list",
+        "memory.note.add",
+        "memory.followup.add",
+        "memory.followup.update",
+        "memory.followup.list",
+        "memory.export",
+        "memory.retention",
+        "memory.evidence.add",
+        "memory.followup.overdue"
+      ]
+    },
+    {
+      "id": "skill.canonical",
+      "type": "skill",
+      "label": "Canonical NOARTEX skill",
+      "path": "skills/canonical/SKILL.md",
+      "external": false
+    },
+    {
+      "id": "skill.portable",
+      "type": "skill",
+      "label": "Portable NOARTEX skill (external copy)",
+      "path": "C:/Users/sleyt/.agents/skills/noartex/SKILL.md",
+      "external": true
+    },
+    {
+      "id": "skill.coord.runtime",
+      "type": "skill",
+      "label": "Coordination: Sentinel Runtime",
+      "path": "skills/coordination/sentinel-runtime/SKILL.md",
+      "external": false
+    },
+    {
+      "id": "skill.coord.audit",
+      "type": "skill",
+      "label": "Coordination: Sentinel Audit",
+      "path": "skills/coordination/sentinel-audit/SKILL.md",
+      "external": false
+    },
+    {
+      "id": "skill.coord.oracle",
+      "type": "skill",
+      "label": "Coordination: Sentinel Oracle",
+      "path": "skills/coordination/sentinel-oracle/SKILL.md",
+      "external": false
+    },
+    {
+      "id": "skill.coord.cloud_usage",
+      "type": "skill",
+      "label": "Usage: Sentinel Cloud via Sentinel CLI",
+      "path": "skills/coordination/sentinel-cloud-usage/SKILL.md",
+      "external": false
+    },
+    {
+      "id": "ext.sentinel.cli",
+      "type": "external",
+      "label": "Sentinel CLI",
+      "integration": "integrated",
+      "note": "Installed binary; invoked by adapter.sentinel.cli subprocess. May use user-configured Sentinel Cloud features if user enabled them in CLI."
+    },
+    {
+      "id": "ext.sentinel.runtime",
+      "type": "external",
+      "label": "Sentinel Runtime",
+      "integration": "coordination-skill-only",
+      "note": "Separate project/service. No in-tree NOARTEX adapter."
+    },
+    {
+      "id": "ext.sentinel.audit",
+      "type": "external",
+      "label": "Sentinel Audit",
+      "integration": "coordination-skill-only",
+      "note": "Separate project. No in-tree NOARTEX adapter."
+    },
+    {
+      "id": "ext.sentinel.oracle",
+      "type": "external",
+      "label": "Sentinel Oracle",
+      "integration": "coordination-skill-only",
+      "note": "Separate merge-authorization enclave. No in-tree NOARTEX adapter."
+    },
+    {
+      "id": "ext.sentinel.cloud",
+      "type": "external",
+      "label": "Sentinel Cloud",
+      "integration": "usage-skill-only",
+      "note": "External service. NO Sentinel Cloud code in NOARTEX. Usage possible through Sentinel CLI if user has API key/config."
+    },
+    {
+      "id": "ext.artex",
+      "type": "external",
+      "label": "ARTEX",
+      "integration": "context-only",
+      "note": "Adversarial/context reference. Execution not performed. No active-defense certification."
+    }
+  ],
+  "edges": [
+    {
+      "from": "layer.interface",
+      "to": "mod.launcher",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.interface",
+      "to": "mod.entry",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.interface",
+      "to": "mod.cli",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.contracts",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.orchestrator",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.registry",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.policy",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.approval",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.killswitch",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.session",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.audit",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.intel",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.memory",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.core",
+      "to": "mod.adapter_base",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.adapters",
+      "to": "adapter.sentinel.cli",
+      "relation": "contains"
+    },
+    {
+      "from": "mod.registry",
+      "to": "adapter.sentinel.cli",
+      "relation": "registers"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "adapter.sentinel.cli",
+      "relation": "dispatches_to"
+    },
+    {
+      "from": "layer.adapters",
+      "to": "adapter.observer.host",
+      "relation": "contains"
+    },
+    {
+      "from": "mod.registry",
+      "to": "adapter.observer.host",
+      "relation": "registers"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "adapter.observer.host",
+      "relation": "dispatches_to"
+    },
+    {
+      "from": "layer.adapters",
+      "to": "adapter.observer.agent",
+      "relation": "contains"
+    },
+    {
+      "from": "mod.registry",
+      "to": "adapter.observer.agent",
+      "relation": "registers"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "adapter.observer.agent",
+      "relation": "dispatches_to"
+    },
+    {
+      "from": "layer.adapters",
+      "to": "adapter.observer.web",
+      "relation": "contains"
+    },
+    {
+      "from": "mod.registry",
+      "to": "adapter.observer.web",
+      "relation": "registers"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "adapter.observer.web",
+      "relation": "dispatches_to"
+    },
+    {
+      "from": "layer.adapters",
+      "to": "adapter.defense.lab",
+      "relation": "contains"
+    },
+    {
+      "from": "mod.registry",
+      "to": "adapter.defense.lab",
+      "relation": "registers"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "adapter.defense.lab",
+      "relation": "dispatches_to"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.core",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.intelligence",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.policy",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.observer",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.sentinel",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.defense",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.registry",
+      "to": "domain.memory",
+      "relation": "exposes"
+    },
+    {
+      "from": "mod.launcher",
+      "to": "mod.entry",
+      "relation": "invokes"
+    },
+    {
+      "from": "mod.entry",
+      "to": "mod.cli",
+      "relation": "calls_main"
+    },
+    {
+      "from": "mod.cli",
+      "to": "mod.orchestrator",
+      "relation": "routes_commands"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "mod.policy",
+      "relation": "evaluates"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "mod.session",
+      "relation": "validates"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "mod.audit",
+      "relation": "records"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "mod.registry",
+      "relation": "resolves_capabilities"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "mod.intel",
+      "relation": "invokes"
+    },
+    {
+      "from": "mod.orchestrator",
+      "to": "mod.memory",
+      "relation": "invokes"
+    },
+    {
+      "from": "layer.schemas",
+      "to": "mod.intel",
+      "relation": "validates",
+      "path": "schemas/triage_verdict.json"
+    },
+    {
+      "from": "layer.skills",
+      "to": "skill.canonical",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.skills",
+      "to": "skill.portable",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.skills",
+      "to": "skill.coord.runtime",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.skills",
+      "to": "skill.coord.audit",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.skills",
+      "to": "skill.coord.oracle",
+      "relation": "contains"
+    },
+    {
+      "from": "layer.skills",
+      "to": "skill.coord.cloud_usage",
+      "relation": "contains"
+    },
+    {
+      "from": "adapter.sentinel.cli",
+      "to": "ext.sentinel.cli",
+      "relation": "invokes_subprocess"
+    },
+    {
+      "from": "skill.coord.runtime",
+      "to": "ext.sentinel.runtime",
+      "relation": "guides_coordination"
+    },
+    {
+      "from": "skill.coord.audit",
+      "to": "ext.sentinel.audit",
+      "relation": "guides_coordination"
+    },
+    {
+      "from": "skill.coord.oracle",
+      "to": "ext.sentinel.oracle",
+      "relation": "guides_coordination"
+    },
+    {
+      "from": "skill.coord.cloud_usage",
+      "to": "ext.sentinel.cloud",
+      "relation": "guides_usage_via_sentinel_cli"
+    }
+  ]
+}
