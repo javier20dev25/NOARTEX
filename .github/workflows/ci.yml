@@ -30,11 +30,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
+          cache-dependency-path: "requirements.txt"
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install jsonschema
+          python -m pip install -r requirements.txt
 
       - name: CLI Health & Smoke Doctor Check
         run: |
@@ -44,6 +45,9 @@ jobs:
 
       - name: Acceptance M1 (Core Governance & Schema Validation)
         run: python tests/acceptance/m1/test_m1.py
+
+      - name: Acceptance M2 (Execution Adapters & Negative Tests)
+        run: python tests/acceptance/m2/test_m2.py
 
       - name: Acceptance M3 (Runtime Observers & Telemetry)
         run: python tests/acceptance/m3/test_m3.py
@@ -71,6 +75,3 @@ jobs:
 
       - name: Acceptance M9-C (Closed-Loop Real-Time Auto-Response)
         run: python tests/acceptance/m9/test_realtime_integration.py
-
-      - name: Full Acceptance Discovery Regression
-        run: python -m unittest discover tests/acceptance
