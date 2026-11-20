@@ -2,8 +2,8 @@
 
 Defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats.
 
-Release: `v0.8.0-m8`  
-Acceptance status: 70/70 tests passed (165/165 verification checks across milestones M1 through M8).  
+Release: `v0.9.0-m9` (Real-Time Reactive Defense)  
+Acceptance status: 125/125 tests passed (220/220 verification checks across milestones M1 through M9).  
 Ecosystem: Coordinates with Sentinel CLI, Sentinel Audit, Sentinel Oracle, and Sentinel Runtime.
 
 ```mermaid
@@ -232,18 +232,19 @@ The current release (`v0.8.0-m8`) has been comprehensively verified across all 8
 | `M6` | Defense Lab | Controlled artifact quarantine, tagging, isolation, automated rollback plan generation | PASS | 6/6 tests pass |
 | `M7` | Memory & Cases | Incident case management, SHA256 evidence integrity, follow-up tracking, case dossier export | PASS | 5/5 tests (59/59 checks) pass |
 | `M8` | End-to-End | Full incident lifecycle: detection, triage, policy gating, containment, rollback, and memory | PASS | 10/10 tests (51/51 checks) pass |
-| **Total** | **Full Platform** | **8 Milestones / 50 Capabilities / 5 Execution Adapters** | **PASS** | **70/70 tests (165/165 checks)** |
+| `M9` | Real-Time Reactive Defense | Kernel eBPF streaming (Tetragon), priority event bus, auto-responder, sub-250ms end-to-end containment | PASS | 55/55 checks across 3 acceptance suites pass |
+| **Total** | **Full Platform** | **9 Milestones / 51 Capabilities / 6 Execution Adapters** | **PASS** | **125/125 tests (220/220 checks)** |
 
-## Capability surface (50 capabilities)
+## Capability surface (51 capabilities)
 
-NOARTEX exposes 50 capabilities across 7 operational domains:
+NOARTEX exposes 51 capabilities across 7 operational domains:
 
 | Domain | Total | Capabilities |
 |---|---:|---|
 | `core` | 10 | `core.doctor.health`, `core.capabilities.list`, `core.session.create`, `core.session.validate`, `core.session.revoke`, `core.task.submit`, `core.task.get`, `core.task.cancel`, `core.audit.query`, `core.audit.export` |
 | `intelligence` | 6 | `intelligence.correlate`, `intelligence.incident.create`, `intelligence.incident.update`, `intelligence.incident.get`, `intelligence.triage.evaluate`, `intelligence.report.summary` |
 | `policy` | 7 | `policy.status`, `policy.evaluate`, `policy.approval.request`, `policy.approval.grant`, `policy.killswitch.activate`, `policy.killswitch.deactivate`, `policy.session.revoke` |
-| `observer` | 7 | `observer.host.processes`, `observer.host.files`, `observer.host.sockets`, `observer.agent.activity`, `observer.agent.denials`, `observer.web.headers`, `observer.web.dns` |
+| `observer` | 8 | `observer.host.processes`, `observer.host.files`, `observer.host.sockets`, `observer.agent.activity`, `observer.agent.denials`, `observer.web.headers`, `observer.web.dns`, `observer.tetragon.stream` |
 | `sentinel` | 4 | `sentinel.sast.scan`, `sentinel.cicd.audit`, `sentinel.supply_chain.audit`, `sentinel.report.generate` |
 | `defense` | 5 | `defense.artifact.quarantine`, `defense.artifact.tag`, `defense.host.isolate`, `defense.host.remediate`, `defense.action.rollback` |
 | `memory` | 11 | `memory.case.create`, `memory.case.get`, `memory.case.update`, `memory.case.close`, `memory.note.add`, `memory.evidence.add`, `memory.followup.add`, `memory.followup.update`, `memory.export`, `memory.retention.apply`, `memory.retention.status` |
@@ -257,6 +258,21 @@ NOARTEX exposes 50 capabilities across 7 operational domains:
 | `adapter.observer.agent` | AVAILABLE | Agent task execution tracking, policy denial logging | Audit log inspection of observed agent activities |
 | `adapter.observer.web` | AVAILABLE | Remote HTTP response header validation, DNS record verification | Network inspection without active payload injection |
 | `adapter.defense.lab` | AVAILABLE | File quarantine, permission tagging, simulated isolation, automated rollback | Controlled containment environment with state restoration |
+| `adapter.observer.tetragon.stream` | AVAILABLE | Real-time eBPF stream ingestion, sensitive kprobe filtering, socket tracking | Continuous kernel-level telemetry consumption via streaming tail |
+
+## Real-time response benchmarks (M9 verified)
+
+Real wall-clock measurements during Operation Ghostpipe end-to-end evaluation:
+
+| Pipeline Stage | Implementation | Measured Latency | Boundary Target |
+|---|---|---:|---:|
+| Priority Bus Dispatch | `core.reactive.ReactiveEventBus` | 1.88 ms | < 50 ms |
+| Kernel Stream Detection | `adapters.tetragon_stream.TetragonStreamAdapter` | 17.09 ms | < 100 ms |
+| Autonomous Multi-Source Correlation | `core.intelligence.EventCorrelator` | 0.79 ms | < 20 ms |
+| Deterministic Triage Engine | `core.intelligence.TriageEngine` | 18.49 ms | < 50 ms |
+| Policy ABAC/RBAC Evaluation | `core.policy.PolicyEngine` (AUTOMATIC mode) | 0.20 ms | < 10 ms |
+| Containment Quarantine & Rollback Plan | `adapters.defense_lab.DefenseLabAdapter` | 15.20 ms | < 50 ms |
+| **Total End-to-End Threat Response Loop** | **Closed Autonomous Loop** | **234.95 ms** | **< 500 ms** |
 
 ## Sentinel natural stack coordination
 

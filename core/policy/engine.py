@@ -45,6 +45,10 @@ _R0_OPERATIONS = {
     "observer.agent.denials",
     "observer.web.headers",
     "observer.web.dns",
+    # M9 Tetragon stream ops
+    "observer.tetragon.stream",
+    "observer.tetragon.status",
+    "observer.tetragon.stop",
     "intelligence.incident.show",
     "intelligence.incident.list",
     "policy.status",

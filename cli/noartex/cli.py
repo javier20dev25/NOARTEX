@@ -32,6 +32,7 @@ from adapters.observer_agent.adapter import AgentObserverAdapter
 from adapters.observer_host.adapter import HostObserverAdapter
 from adapters.observer_web.adapter import WebObserverAdapter
 from adapters.sentinel_cli.adapter import SentinelCLIAdapter
+from adapters.tetragon_stream import TetragonStreamAdapter
 from core.audit.store import AuditLog
 from core.contracts.models import ActorIdentity, AgentType
 from core.discovery.registry import CapabilityRegistry
@@ -61,6 +62,7 @@ def _build_orchestrator(execution_mode: ExecutionMode = ExecutionMode.MANUAL) ->
     registry.register_adapter(AgentObserverAdapter(audit_log=audit))
     registry.register_adapter(WebObserverAdapter())
     registry.register_adapter(DefenseLabAdapter())
+    registry.register_adapter(TetragonStreamAdapter())
     # M5 Policy managers
     approvals = ApprovalManager(data_dir=NOARTEX_DATA_DIR)
     killswitch = KillSwitchManager(data_dir=NOARTEX_DATA_DIR)
