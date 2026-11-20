@@ -1,0 +1,57 @@
+﻿name: CI
+
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PYTHONIOENCODING: utf-8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install jsonschema
+
+      - name: Smoke checks
+        run: |
+          python noartex.py --version
+          python noartex.py --help
+          python noartex.py doctor --format json
+
+      - name: Acceptance m1 (core)
+        run: python tests/acceptance/m1/test_m1.py
+
+      - name: Acceptance m3 (observers)
+        run: python tests/acceptance/m3/test_m3.py
+
+      - name: Acceptance m4 (intelligence)
+        run: python tests/acceptance/m4/test_m4.py
+
+      - name: Acceptance m5 (policy/approvals/killswitch)
+        run: python tests/acceptance/m5/test_m5.py
+
+      - name: Acceptance m6 (defense lab)
+        run: python tests/acceptance/m6/test_m6.py
+
+      - name: Acceptance m7 (memory/cases)
+        run: python tests/acceptance/m7/test_m7.py
+
+      - name: Acceptance m8 (end-to-end integration)
+        run: python tests/acceptance/m8/test_m8.py
+
+      # m2 depends on a locally available/configured Sentinel CLI for full execution paths;
+      # it is intentionally excluded from default CI to avoid environment-coupled failures.
