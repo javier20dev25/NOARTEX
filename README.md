@@ -1,11 +1,21 @@
-# NOARTEX
+# NOARTEX: Defensive Control Plane & Capability Governance for AI Agents
 
-![NOARTEX](brand/noartex.jpg)
+<p align="center">
+  <img src="brand/noartex.jpg" alt="NOARTEX Defensive Control Plane" width="220" />
+</p>
 
-Defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats.
+<p align="center">
+  <a href="https://github.com/javier20dev25/NOARTEX/releases/tag/v0.9.2"><img src="https://img.shields.io/badge/release-v0.9.2-blue.svg" alt="Release v0.9.2" /></a>
+  <a href="https://github.com/javier20dev25/NOARTEX/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-green.svg" alt="License Apache 2.0" /></a>
+  <a href="https://github.com/javier20dev25/NOARTEX/actions/workflows/ci.yml"><img src="https://github.com/javier20dev25/NOARTEX/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+  <a href="https://sentinel-psi-nine.vercel.app/noartex"><img src="https://img.shields.io/badge/docs-sentinel--cloud%2Fnoartex-red.svg" alt="NOARTEX Technical Documentation" /></a>
+</p>
+
+**NOARTEX** is open-source defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats (such as the ARTEX autonomous malware class). It provides deterministic capability mediation, a fail-closed policy engine (R0–R3), continuous eBPF kernel streaming via Tetragon, sub-250ms reactive auto-containment, and a cryptographically verifiable SHA-256 evidence ledger.
 
 Release: `v0.9.2` (Complete Defensive Skills Library + Real-Time Reactive Defense)  
 Acceptance status: 125/125 tests passed (220/220 verification checks across milestones M1 through M9).  
+Documentation: [sentinel-psi-nine.vercel.app/noartex](https://sentinel-psi-nine.vercel.app/noartex)  
 Ecosystem: Coordinates with Sentinel CLI, Sentinel Audit, Sentinel Oracle, and Sentinel Runtime.
 
 ```mermaid
