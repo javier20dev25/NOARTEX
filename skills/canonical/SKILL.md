@@ -8,7 +8,7 @@ description: >
   M4 Intelligence, M5 Permissions, M6 Defense Lab, M7 Memory, and M8 End-to-End Orchestration),
   and query the audit log via the noartex CLI.
   The agent thinks. NOARTEX provides capabilities and governs execution.
-version: 0.8.0-m8
+version: 0.9.0-m9
 commands:
   - noartex
   - noartex doctor
@@ -21,7 +21,7 @@ commands:
   - noartex memory
 ---
 
-# NOARTEX Skill — M1–M8 Complete Platform (v0.8.0-m8)
+# NOARTEX Skill — M1–M9 Complete Platform (v0.9.0-m9)
 
 ## Misión
 
@@ -72,7 +72,7 @@ NOARTEX implementa una matriz determinista de niveles de riesgo R0 a R4:
 
 ---
 
-## Catálogo de Capacidades Disponibles (50 Registradas)
+## Catálogo de Capacidades Disponibles (51 Registradas)
 
 ### 1. Capacidades Core (R0 / R1 — M1)
 - `core.capabilities.list`, `core.capabilities.describe`, `core.doctor.health`
@@ -93,10 +93,11 @@ NOARTEX implementa una matriz determinista de niveles de riesgo R0 a R4:
 - `intelligence.incident.create`, `intelligence.incident.update`, `intelligence.incident.show`, `intelligence.incident.list`
 - `intelligence.triage.evaluate`: Evaluación determinista de triage validada por JSON Schema.
 
-### 4. Capacidades de Observación de Solo Lectura (R0 — M3)
+### 4. Capacidades de Observación de Solo Lectura (R0 — M3 / M9)
 - `observer.host.processes`, `observer.host.files`, `observer.host.network`
 - `observer.agent.activity`, `observer.agent.denials`
 - `observer.web.headers`, `observer.web.dns`
+- `observer.tetragon.stream`: Ingesta reactiva y continua de stream eBPF Tetragon (M9)
 
 ### 5. Capacidades Sentinel CLI Adapter (R1 — M2)
 - `sentinel.sast.scan`, `sentinel.cicd.audit`, `sentinel.supply_chain.audit`, `sentinel.report.generate`
