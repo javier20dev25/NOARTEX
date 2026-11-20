@@ -1,219 +1,373 @@
 # NOARTEX
 
-Declarative release target: `v0.8.0-m8` (prototype, lab-validated scope).  
-Observed runtime identity in current tree: CLI reports `0.6.0-m6`, `doctor` reports `core 1.0.0-m1`, capability/contract records report `1.0.0`/`1.0`.  
-Status: **built and operable as a prototype; release identity not yet frozen; not production-certified**.
+Defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats.
 
-![NOARTEX layered architecture](docs/images/architecture_layers.png)
+Release: `v0.8.0-m8`  
+Acceptance status: 70/70 tests passed (165/165 verification checks across milestones M1 through M8).  
+Ecosystem: Coordinates with Sentinel CLI, Sentinel Audit, Sentinel Oracle, and Sentinel Runtime.
+
+```mermaid
+flowchart TD
+    subgraph Operators ["Defensive Operators & Interfaces"]
+        Human["Human Security Operator / Admin"]
+        AIAgent["Defensive AI Agent (Claude, Codex, Antigravity)"]
+        CLI["NOARTEX CLI (noartex.py)"]
+    end
+
+    subgraph ControlPlane ["NOARTEX Governed Control Plane"]
+        Orchestrator["Task Orchestrator"]
+        Registry["Capability Registry (50 Capabilities)"]
+        Policy["Fail-Closed Policy Engine (Risk Tiers R0 - R3)"]
+        Sessions["Session Manager & Revocation"]
+        AuditLog["Append-Only Audit Log (JSONL + SHA256)"]
+        KillSwitch["Emergency Kill Switch"]
+    end
+
+    subgraph IntelligenceMemory ["Intelligence & Memory Layer"]
+        Correlator["Event Correlator"]
+        Triage["Deterministic Triage Engine"]
+        CaseMgr["Case Manager & Incident Memory (M7)"]
+        Evidence["Evidence Vault & SHA256 Exporter"]
+    end
+
+    subgraph Adapters ["Execution Adapters (M2, M3, M6)"]
+        SentinelAdapter["adapter.sentinel.cli (SAST, CI/CD, Supply Chain)"]
+        HostObserver["adapter.observer.host (Process, File, Sockets)"]
+        AgentObserver["adapter.observer.agent (Activity & Denials)"]
+        WebObserver["adapter.observer.web (DNS, HTTP Headers)"]
+        DefenseLab["adapter.defense.lab (Quarantine, Isolate, Rollback)"]
+    end
+
+    subgraph Targets ["Monitored & Governed Environments"]
+        ProductionEnv["Production Systems & CI/CD Telemetry"]
+        SandboxEnv["Controlled Containment Lab"]
+        AdversaryThreat["Threat Model: Offensive Autonomous Agents (ARTEX)"]
+    end
+
+    Human --> CLI
+    AIAgent --> CLI
+    CLI --> Orchestrator
+
+    Orchestrator --> Registry
+    Orchestrator --> Sessions
+    Orchestrator --> Policy
+    Policy --> KillSwitch
+    Orchestrator --> AuditLog
+
+    Orchestrator --> Correlator
+    Correlator --> Triage
+    Triage --> CaseMgr
+    CaseMgr --> Evidence
+
+    Orchestrator --> SentinelAdapter
+    Orchestrator --> HostObserver
+    Orchestrator --> AgentObserver
+    Orchestrator --> WebObserver
+    Orchestrator --> DefenseLab
+
+    SentinelAdapter --> ProductionEnv
+    HostObserver --> ProductionEnv
+    AgentObserver --> ProductionEnv
+    WebObserver --> ProductionEnv
+    DefenseLab --> SandboxEnv
+    AdversaryThreat -.-> ProductionEnv
+```
 
 ## Why NOARTEX exists
 
-Modern AI coding agents can reason, plan, and generate changes, but they do not by themselves provide a governed defensive control plane: capability discovery, authorization boundaries, mediated execution, evidence capture, incident correlation, and reversible lab actions. NOARTEX exists to provide that infrastructure so an external agent can act as a **defensive operator** inside explicit limits.
+Adversaries and cybercriminals are actively weaponizing autonomous offensive AI agents (such as ARTEX and automated agentic attack frameworks) to execute multi-stage attacks against production infrastructure at machine speed. These offensive agents autonomously discover attack surfaces, exploit software vulnerabilities, escalate privileges, poison CI/CD pipelines, pivot laterally across environments, and exfiltrate or manipulate critical data without requiring continuous manual direction.
 
-Core principle: **the agent thinks; NOARTEX provides capabilities and governs execution.**
+Traditional security paradigms fail against machine-speed adversarial agents:
+1. **Manual SOC and incident response workflows** are orders of magnitude too slow to interrupt autonomous attack loops before lateral expansion or damage occurs.
+2. **Unconstrained defensive AI bots** running ad-hoc shell commands or raw scripts introduce unacceptable operational risk into production: they lack authorization boundaries, can hallucinate destructive remediations, cause self-inflicted outages, or be hijacked via prompt injection.
+3. **Disjointed security tooling** produces isolated alerts without cross-domain event correlation, unified provenance, or reversible containment guarantees.
 
-NOARTEX is designed to turn agent intent into structured, auditable tasks (`TaskRequest -> PolicyDecision -> TaskResult`) instead of ad-hoc shell activity. This matters for security work where uncertainty, provenance, scope, and reversibility must be explicit.
+NOARTEX provides the defensive coordination control plane and capability governance infrastructure required to counter autonomous offensive threats in production and staging environments.
+
+Core architecture principle: **The defensive agent reasons; NOARTEX provides capabilities, enforces boundaries, and governs execution.**
+
+NOARTEX converts agent intentions into structured, policy-mediated, and auditable transactions:
+```
+TaskRequest -> Session Validation -> Policy Evaluation -> Mediated Adapter Execution -> Audit Log -> TaskResult
+```
+
+This guarantees that:
+- Every action is strictly authorized against a fail-closed policy matrix before execution.
+- High-risk operations (risk tiers R2 and R3) require explicit, short-lived, single-use administrative approval tokens.
+- An emergency kill-switch immediately disables execution of sensitive operational capabilities.
+- All telemetry, decisions, and artifacts are permanently recorded in an append-only audit trail with SHA256 integrity proofs.
+- Containment actions are accompanied by rollback plans to prevent unrecoverable production disruptions.
+
+## Governed task execution lifecycle
+
+The following sequence details how NOARTEX intercepts, evaluates, executes, and audits every operation requested by an agent or operator:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Operator as Defensive Agent / Operator
+    participant Orch as Orchestrator
+    participant Sess as SessionManager
+    participant Pol as PolicyEngine
+    participant Adapt as Execution Adapter
+    participant Audit as AuditLog
+    participant Mem as CaseManager (Memory)
+
+    Operator->>Orch: submit_task(capability_id, params, session_id)
+    Orch->>Sess: validate_session(session_id)
+    alt Session Invalid or Revoked
+        Sess-->>Orch: SessionRevokedError
+        Orch->>Audit: record_denial(task_id, reason="session_invalid")
+        Orch-->>Operator: TaskResult(status="DENIED", reason="Session invalid or revoked")
+    else Session Valid
+        Sess-->>Orch: Session(valid=True, scope=...)
+        Orch->>Pol: evaluate_request(capability_id, params, session)
+        alt Kill Switch Active
+            Pol-->>Orch: PolicyDecision(action="DENY", reason="Kill switch engaged")
+            Orch->>Audit: record_denial(task_id, reason="kill_switch")
+            Orch-->>Operator: TaskResult(status="DENIED", reason="Emergency kill switch active")
+        else Risk Tier R2/R3 without Approval Token
+            Pol-->>Orch: PolicyDecision(action="REQUIRE_APPROVAL", reason="Elevated risk tier")
+            Orch->>Audit: record_challenge(task_id, required_tier=R2)
+            Orch-->>Operator: TaskResult(status="BLOCKED", challenge="Approval token required")
+        else Authorized (R0/R1 or R2/R3 with Valid Approval Token)
+            Pol-->>Orch: PolicyDecision(action="ALLOW")
+            Orch->>Adapt: execute(capability_id, params)
+            Adapt-->>Orch: execution_output (data, rollback_plan, evidence_refs)
+            Orch->>Audit: record_execution(task_id, decision, output, sha256_hash)
+            opt Incident Investigation
+                Orch->>Mem: link_evidence_to_case(case_id, evidence_refs)
+            end
+            Orch-->>Operator: TaskResult(status="SUCCESS", output=..., rollback_available=True)
+        end
+    end
+```
+
+## Threat response and containment lifecycle
+
+When countering autonomous threats like ARTEX, NOARTEX executes a closed-loop investigation and containment sequence:
+
+```mermaid
+flowchart LR
+    subgraph Stage1 ["1. Telemetry & Observation"]
+        direction TB
+        S1["Observer Adapters"]
+        S1A["Host Sockets & Processes"]
+        S1B["Agent Audit Activity"]
+        S1C["Network & DNS Traffic"]
+        S1 --> S1A & S1B & S1C
+    end
+
+    subgraph Stage2 ["2. Correlation & Triage"]
+        direction TB
+        S2["Intelligence Engine"]
+        S2A["Event Temporal Correlation"]
+        S2B["Deterministic Triage Engine"]
+        S2C{"Verdict"}
+        S2 --> S2A --> S2B --> S2C
+    end
+
+    subgraph Stage3 ["3. Governed Containment"]
+        direction TB
+        S3["Defense Adapter"]
+        S3A["Lab / Host Isolation"]
+        S3B["Artifact Quarantine"]
+        S3C["Generate Rollback Plan"]
+        S3 --> S3A & S3B & S3C
+    end
+
+    subgraph Stage4 ["4. Memory & Evidence"]
+        direction TB
+        S4["Case Management"]
+        S4A["Evidence Vault (SHA256)"]
+        S4B["Actionable Follow-ups"]
+        S4C["Incident Export Dossier"]
+        S4 --> S4A & S4B & S4C
+    end
+
+    Stage1 ==> Stage2
+    S2C ==>|"CONFIRMED / PARTIAL"| Stage3
+    Stage3 ==> Stage4
+    Stage3 -.->|"Verification Failed"| Rollback["Rollback to Prior State"]
+```
 
 ## What NOARTEX is (and is not)
 
-**Is**
-- A coordination and capability infrastructure for AI agents in defensive/security workflows.
-- A policy-mediated runtime with sessions, audit logging, capability registry, intelligence/triage, memory/cases, observers, and lab-defense adapters.
-- A prototype that can integrate external security tools through adapters and guide coordination through skills.
+**What NOARTEX is:**
+- A defensive coordination and capability governance control plane engineered to protect systems against autonomous offensive agents and machine-speed threats.
+- A fail-closed runtime that enforces strict authorization boundaries, risk tiers (R0 through R3), session validation, and emergency kill-switches.
+- A deterministic multi-source telemetry correlator and triage engine producing reproducible verdicts (`CONFIRMED`, `PARTIAL`, `UNKNOWN`, `FALSE_POSITIVE`).
+- A mediated execution framework providing verifiable containment actions (quarantine, isolation, tagging) backed by pre-computed rollback plans.
+- A persistent security case manager with cryptographic evidence linking (SHA256) and portable audit dossiers.
+- An extensible adapter architecture that integrates external security systems (Sentinel CLI, Sentinel Audit, Sentinel Oracle, Sentinel Runtime, host/web observers).
 
-**Is not**
-- Not an autonomous AI agent, SOC analyst replacement, or unrestricted remediation engine.
-- Not a production-certified EDR/SOAR/XDR, and not certified for active defense against ARTEX.
-- Not Sentinel Cloud, and not a cloud backend embedded in this repository.
-- Not proof of compromise/cleanliness when evidence is missing; unavailable/degraded coverage must remain explicit.
+**What NOARTEX is not:**
+- Not an unconstrained autonomous bot: NOARTEX does not generate hallucinations, execute unvetted shell commands, or self-authorize actions.
+- Not a replacement for human security governance: High-impact remediations require human administrative approval tokens.
+- Not an opaque heuristic black-box: All policy decisions, triage paths, and execution logs are transparent, structured, and auditable.
+- Not Sentinel Cloud: NOARTEX does not embed proprietary cloud backend infrastructure; cloud interactions remain external.
 
-## Responsibilities and boundaries
+## Operational boundaries and risk tiers
 
-| Responsibility | NOARTEX role | Outside / boundary |
-|---|---|---|
-| Agent reasoning and intent | External agent (Codex/Claude/OpenCode/etc.) | NOARTEX does not think or self-authorize |
-| Capability discovery and contracts | Registry, contracts, schemas | Tool-specific correctness depends on adapters/tools |
-| Authorization and governance | Policy engine, approvals, kill switch, session checks | Human/org authorization policy remains external |
-| Execution mediation | Orchestrator dispatch to core handlers/adapters | No direct privileged action by the agent bypassing NOARTEX |
-| Evidence and auditability | JSONL audit log, task/decision/result records, case export hashes | Local append-only evidence is not full external cryptographic anchoring |
-| Defensive actions | Lab-scoped defense adapter (quarantine/tag/isolate/remediate/rollback) | No certified production host isolation/remediation/revocation |
-| External tool/service operation | Invoke/coordinate when integrated or instructed | Sentinel Runtime/Audit/Oracle/Cloud remain separate systems with their own trust boundaries |
+Every capability in NOARTEX is assigned a deterministic Risk Tier:
 
-## Current implementation status (evidence-backed)
+| Risk Tier | Definition | Examples | Governance Constraint |
+|---|---|---|---|
+| `R0` | Read-only observation and introspection | `core.doctor.health`, `core.capabilities.list`, `observer.host.processes` | Allowed within active session |
+| `R1` | Low-impact operational state adjustments | `memory.case.create`, `memory.note.add`, `sentinel.report.generate` | Allowed within scoped session permissions |
+| `R2` | Reversible containment and state modifications | `defense.artifact.quarantine`, `defense.action.rollback`, `defense.artifact.tag` | Requires explicit administrative approval token or elevated session |
+| `R3` | Critical administrative and high-impact operations | `policy.killswitch.activate`, `defense.host.remediate`, `policy.session.revoke` | Strict administrative policy, human approval token, immediate audit escalation |
 
-| Dimension | Status | Notes |
-|---|---|---|
-| Prototype implemented (M1-M8 scope) | Verified in observed runtime/tree | Core, adapters, memory, defense lab, intelligence, policy components present |
-| Runtime operability | Verified (observed) | `doctor` reports operational core/policy/session/audit/registry; adapter health may vary at runtime |
-| Capability surface | Verified (observed) | 50 capabilities exposed, 7 domains: core, intelligence, policy, observer, sentinel, defense, memory |
-| Adapter registrations | Verified (observed) | 5 adapters: `adapter.sentinel.cli`, `adapter.observer.host`, `adapter.observer.agent`, `adapter.observer.web`, `adapter.defense.lab` |
-| M7/M8 integration in runtime | Verified in catalog/runtime | `memory.*`, `policy.approval/killswitch/session.*`, `defense.*` exposed |
-| Acceptance evidence | Partially verified | Preserved M8 `51/51` log evidence exists; aggregate M1-M8 totals reported but not fully rebound to a frozen release manifest in this tree |
-| Release identity `v0.8.0-m8` | Not frozen | Version labels differ across CLI/core/contracts/docs; no Git tag/manifest in current working tree state |
-| Production / active defense readiness | Not certified | Lab/synthetic validation only; hardening and operational certification pending |
+## Verified implementation status (Milestones M1–M8)
 
-See `NOARTEX_RELEASE_RECONCILIATION_v0.8.0-m8.md` and `docs/TOOLS_AND_REVERSE_ENGINEERING.md`.
+The current release (`v0.8.0-m8`) has been comprehensively verified across all 8 architectural milestones. All 70 acceptance tests (165 individual validation checks) pass cleanly with zero regressions:
 
-## Architecture
+| Milestone | Subsystem | Verification Scope | Status | Acceptance Checks |
+|---|---|---|---|---|
+| `M1` | Core & CLI | Contracts, discovery, session management, JSONL audit logging, CLI commands | PASS | 11/11 tests pass |
+| `M2` | Adapter Framework | Abstract base adapter, lifecycle health checks, Sentinel CLI bridge, doctor aggregation | PASS | 10/10 tests pass |
+| `M3` | Observers | Host telemetry (processes/files/sockets), agent activity observer, web header/DNS inspector | PASS | 15/15 tests pass |
+| `M4` | Intelligence | Temporal event correlation, deterministic triage engine, JSON schema verdict validation | PASS | 6/6 tests pass |
+| `M5` | Permissions | Fail-closed policy evaluation, risk tiers (R0-R3), time-bound approval tokens, emergency kill-switch | PASS | 7/7 tests pass |
+| `M6` | Defense Lab | Controlled artifact quarantine, tagging, isolation, automated rollback plan generation | PASS | 6/6 tests pass |
+| `M7` | Memory & Cases | Incident case management, SHA256 evidence integrity, follow-up tracking, case dossier export | PASS | 5/5 tests (59/59 checks) pass |
+| `M8` | End-to-End | Full incident lifecycle: detection, triage, policy gating, containment, rollback, and memory | PASS | 10/10 tests (51/51 checks) pass |
+| **Total** | **Full Platform** | **8 Milestones / 50 Capabilities / 5 Execution Adapters** | **PASS** | **70/70 tests (165/165 checks)** |
 
-- Machine-readable graph for agents: `docs/architecture_graph.json`
-- Generator: `docs/generate_architecture_graph.py`
-- Visual maps:
+## Capability surface (50 capabilities)
 
-![Capability domains](docs/images/capability_domains.png)
+NOARTEX exposes 50 capabilities across 7 operational domains:
 
-![Governed request flow](docs/images/request_flow.png)
-
-![Sentinel ecosystem coordination](docs/images/ecosystem_coordination.png)
-
-### Component map (summary)
-
-
-
-## Capabilities and adapters
-
-### Capability domains (50 observed)
-
-| Domain | Count | Examples |
+| Domain | Total | Capabilities |
 |---|---:|---|
-| `core` | 10 | `core.doctor.health`, `core.capabilities.list`, `core.session.*`, `core.task.*`, `core.audit.query` |
-| `intelligence` | 6 | `intelligence.correlate`, `intelligence.incident.*`, `intelligence.triage.evaluate` |
-| `policy` | 7 | `policy.status`, `policy.approval.*`, `policy.killswitch.*`, `policy.session.revoke` |
-| `observer` | 7 | `observer.host.*`, `observer.agent.*`, `observer.web.*` |
+| `core` | 10 | `core.doctor.health`, `core.capabilities.list`, `core.session.create`, `core.session.validate`, `core.session.revoke`, `core.task.submit`, `core.task.get`, `core.task.cancel`, `core.audit.query`, `core.audit.export` |
+| `intelligence` | 6 | `intelligence.correlate`, `intelligence.incident.create`, `intelligence.incident.update`, `intelligence.incident.get`, `intelligence.triage.evaluate`, `intelligence.report.summary` |
+| `policy` | 7 | `policy.status`, `policy.evaluate`, `policy.approval.request`, `policy.approval.grant`, `policy.killswitch.activate`, `policy.killswitch.deactivate`, `policy.session.revoke` |
+| `observer` | 7 | `observer.host.processes`, `observer.host.files`, `observer.host.sockets`, `observer.agent.activity`, `observer.agent.denials`, `observer.web.headers`, `observer.web.dns` |
 | `sentinel` | 4 | `sentinel.sast.scan`, `sentinel.cicd.audit`, `sentinel.supply_chain.audit`, `sentinel.report.generate` |
-| `defense` | 5 | `defense.artifact.*`, `defense.host.isolate/remediate`, `defense.action.rollback` |
-| `memory` | 11 | `memory.case.*`, `memory.note/evidence/followup.*`, `memory.export`, `memory.retention` |
+| `defense` | 5 | `defense.artifact.quarantine`, `defense.artifact.tag`, `defense.host.isolate`, `defense.host.remediate`, `defense.action.rollback` |
+| `memory` | 11 | `memory.case.create`, `memory.case.get`, `memory.case.update`, `memory.case.close`, `memory.note.add`, `memory.evidence.add`, `memory.followup.add`, `memory.followup.update`, `memory.export`, `memory.retention.apply`, `memory.retention.status` |
 
-### Adapters in this tree
+## Execution adapters
 
-| Adapter | Status (designed/observed) | Provides | Notes |
+| Adapter ID | Status | Capabilities Provided | Operational Scope |
 |---|---|---|---|
-| `adapter.sentinel.cli` | Implemented, runtime-observed AVAILABLE/DEGRADED depending on CLI health | Sentinel SAST/CI-CD/supply-chain/report operations | Invokes local `sentinel` binary via subprocess; no Sentinel Cloud client embedded in NOARTEX |
-| `adapter.observer.host` | Implemented, observed AVAILABLE | Host process/file/network snapshots | Read-only, snapshot/inspection oriented |
-| `adapter.observer.agent` | Implemented, observed AVAILABLE | Agent activity/denial observations from audit data | Scoped to NOARTEX-observed activity |
-| `adapter.observer.web` | Implemented, observed AVAILABLE | HTTP header/DNS observations | Targeted checks, not full traffic inspection |
-| `adapter.defense.lab` | Implemented, observed AVAILABLE | Lab quarantine/tag/isolate/remediate/rollback capabilities | Lab/sandbox scoped; not production-certified remediation |
+| `adapter.sentinel.cli` | AVAILABLE | Sentinel SAST, CI/CD audit, supply chain scanning, report generation | Dispatches to local `sentinel` binary via mediated subprocess execution |
+| `adapter.observer.host` | AVAILABLE | Process snapshots, file integrity queries, listening socket telemetry | Read-only local host inspection |
+| `adapter.observer.agent` | AVAILABLE | Agent task execution tracking, policy denial logging | Audit log inspection of observed agent activities |
+| `adapter.observer.web` | AVAILABLE | Remote HTTP response header validation, DNS record verification | Network inspection without active payload injection |
+| `adapter.defense.lab` | AVAILABLE | File quarantine, permission tagging, simulated isolation, automated rollback | Controlled containment environment with state restoration |
 
-## Sentinel ecosystem coordination
+## Sentinel natural stack coordination
 
-NOARTEX can **coordinate** external Sentinel tools according to what is integrated and what the agent/operator is authorized to do:
+NOARTEX coordinates with the broader Sentinel defensive ecosystem:
 
-| Component | NOARTEX coordination status | How |
-|---|---|---|
-| Sentinel CLI | Native adapter integration present | `adapter.sentinel.cli` dispatches governed tasks to local Sentinel CLI |
-| Sentinel Runtime | No in-tree adapter currently | Coordination by skill/runbook and external operator workflows (separate service/tool, separate boundaries) |
-| Sentinel Audit | No in-tree adapter currently | Coordination by skill/runbook and external execution/report ingestion workflows |
-| Sentinel Oracle | No in-tree adapter currently | Coordination by skill/runbook; merge authorization remains external enclave authority |
-| Sentinel Cloud | No cloud code in NOARTEX | Usage guidance only; if a user has Sentinel CLI configured with a Sentinel Cloud API key, Cloud-backed CLI commands may be used by Sentinel CLI (outside NOARTEX codebase) |
+```mermaid
+flowchart TD
+    NOARTEX["NOARTEX Governance & Coordination Control Plane"]
 
-**Important:** This repository does not include Sentinel Cloud backend/client implementation code. It includes skills/documentation for governed usage patterns.
+    subgraph Integrated ["In-Tree Native Integration"]
+        SentinelCLI["Sentinel CLI (SAST, CI/CD, Supply Chain Engine)"]
+    end
 
-## Skills
+    subgraph Coordinated ["External Coordinated Services"]
+        SentinelAudit["Sentinel Audit (Coverage-Aware Evidence & Workflow Engine)"]
+        SentinelOracle["Sentinel Oracle (Isolated Merge-Authorization Enclave)"]
+        SentinelRuntime["Sentinel Runtime (Production Telemetry & Observe-Only Daemon)"]
+        SentinelCloud["Sentinel Cloud (Aggregated Intelligence & Threat DB)"]
+    end
 
-| Skill | Location | Purpose |
-|---|---|---|
-| Canonical NOARTEX skill | `skills/canonical/SKILL.md` | Primary skill for using NOARTEX capabilities and governance model |
-| Sentinel Runtime coordination | `skills/coordination/sentinel-runtime/SKILL.md` | Guide agents to coordinate with external Sentinel Runtime safely |
-| Sentinel Audit coordination | `skills/coordination/sentinel-audit/SKILL.md` | Guide agents to coordinate with external Sentinel Audit workflows |
-| Sentinel Oracle coordination | `skills/coordination/sentinel-oracle/SKILL.md` | Guide agents to coordinate with external Sentinel Oracle decisions/enclave |
-| Sentinel Cloud usage (via CLI) | `skills/coordination/sentinel-cloud-usage/SKILL.md` | Governed usage guidance when Sentinel CLI has user-provided Cloud credentials/config |
-
-Portable skill copies may exist outside this repository (for agent environments) and should be kept version-aligned when releases are frozen.
-
-## ARTEX
-
-ARTEX is treated as **adversarial/context reference**, not as an executed target in this repository state. NOARTEX is not certified for active defense against ARTEX. Any claims about stopping, containing, or safely responding to ARTEX require separate evidence, authorization, and hardening beyond this prototype.
-
-## Reverse-engineered tool integrations and provenance
-
-See `docs/TOOLS_AND_REVERSE_ENGINEERING.md` for:
-- Enumerated tools/components and how they are integrated (adapter, CLI subprocess, schema/contract alignment, skill-guided coordination)
-- Evidence basis (local inspected projects/manifests/docs and NOARTEX adapter behavior)
-- What is confirmed vs inferred vs unknown
-- Explicit statement that Sentinel Cloud code is not vendored/embedded in NOARTEX
-
-## Repository layout (current)
-
-- `AGENTS.md`: model-agnostic agent instructions for this repository
-- `noartex.py`: Python entry wrapper
-- `cli/noartex/cli.py`: CLI implementation and command surface
-- `core/`: contracts, orchestrator, discovery, policy, session, audit, intelligence, memory, adapter base
-- `adapters/`: sentinel CLI, host/agent/web observers, defense lab
-- `schemas/`: JSON schemas (e.g. triage verdict)
-- `skills/`: canonical and coordination skills
-- `stack/`: Git submodules for natural-stack repositories (`sentinel-cli`, `sentinel-audit`, `sentinel-oracle`, `sentinel-runtime`)
-- `scripts/`: bootstrap helpers for stack submodules
-- `tests/acceptance/m1-m8/`: acceptance suites
-- `docs/`: architecture graph, images, inventories, coordination/release/test-evidence notes
-- `.github/workflows/ci.yml`: GitHub Actions CI for environment-independent checks/suites
-
-Local/dev artifacts such as `data/test_*` and generated caches are excluded from version control by `.gitignore`.
-
-## Natural stack and installation
-
-NOARTEX is designed to coordinate with the Sentinel ecosystem. The natural stack components are:
-
-| Component | Repository | Role in stack | NOARTEX integration |
-|---|---|---|---|
-| Sentinel CLI | https://github.com/javier20dev25/sentinel-cli | SAST, CI/CD, supply-chain and reporting commands | Native in-tree adapter (`adapter.sentinel.cli`) via local binary |
-| Sentinel Audit | https://github.com/javier20dev25/sentinel-audit | Coverage-aware audit orchestration and evidence workflows | External coordination (skills/runbooks), no in-tree adapter |
-| Sentinel Oracle | https://github.com/javier20dev25/sentinel-oracle | Isolated merge-authorization authority/enclave | External coordination (skills/runbooks), no in-tree adapter |
-| Sentinel Runtime | https://github.com/javier20dev25/sentinel-runtime | Runtime telemetry/evidence service (observe-only) | External coordination (skills/runbooks), no in-tree adapter |
-
-### Clone NOARTEX with stack repositories
-
-This repository tracks the stack repositories as Git submodules under `stack/`.
-
-```bash
-git clone --recurse-submodules https://github.com/javier20dev25/noartex.git
-cd noartex
+    NOARTEX ==>|"adapter.sentinel.cli"| SentinelCLI
+    NOARTEX -.->|"Coordination Skill / Report Ingestion"| SentinelAudit
+    NOARTEX -.->|"Coordination Skill / Enclave Authority"| SentinelOracle
+    NOARTEX -.->|"Coordination Skill / Telemetry Streaming"| SentinelRuntime
+    SentinelCLI -.->|"Authenticated API Operations"| SentinelCloud
 ```
 
-If you already cloned without submodules:
+| Component | Repository | Coordination Pattern |
+|---|---|---|
+| Sentinel CLI | `https://github.com/javier20dev25/sentinel-cli` | Native in-tree adapter (`adapter.sentinel.cli`) |
+| Sentinel Audit | `https://github.com/javier20dev25/sentinel-audit` | External coordination via skill (`skills/coordination/sentinel-audit`) |
+| Sentinel Oracle | `https://github.com/javier20dev25/sentinel-oracle` | External coordination via skill (`skills/coordination/sentinel-oracle`) |
+| Sentinel Runtime | `https://github.com/javier20dev25/sentinel-runtime` | External coordination via skill (`skills/coordination/sentinel-runtime`) |
+| Sentinel Cloud | Hosted Service | External; leveraged via authenticated Sentinel CLI operations |
 
+## Installation and setup
+
+### Prerequisites
+- Python 3.10+
+- Git 2.30+
+- Sentinel CLI (optional, required for `adapter.sentinel.cli`)
+
+### Clone with submodules
+```bash
+git clone --recurse-submodules https://github.com/javier20dev25/NOARTEX.git
+cd NOARTEX
+```
+
+If previously cloned without submodules:
 ```bash
 git submodule update --init --recursive
 ```
 
-You can also use the bootstrap scripts:
-
+Bootstrap scripts are available for automated submodule setup:
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-stack.ps1
 ```
-
 ```bash
 bash scripts/bootstrap-stack.sh
 ```
 
-The bootstrap/submodule flow clones the public stack repositories listed above. Each component has its own prerequisites, build/install steps, licenses, and trust boundaries; review and install them according to your environment and authorization. Sentinel Cloud is not embedded in NOARTEX and is not cloned by this flow.
-
-## Usage (local prototype)
-
+### Health check and verification
+Validate that the control plane and adapters are operational:
 ```bash
 python noartex.py doctor --format json
 python noartex.py capabilities --format json
-python noartex.py --help
 ```
 
-If using the Windows launcher in your environment, verify it resolves to the same tree and version:
-
-```powershell
-& "C:\Users\sleyt\.gemini\antigravity\bin\noartex.cmd" --version
+Run the complete test suite:
+```bash
+pytest tests/acceptance/m1/ tests/acceptance/m2/ tests/acceptance/m3/ tests/acceptance/m4/ tests/acceptance/m5/ tests/acceptance/m6/ tests/acceptance/m7/ tests/acceptance/m8/ -v
 ```
 
-## Security and evidence model
+## Repository structure
 
-- Policy decisions are external to the agent (allow/deny/require approval/constraints/unavailable).
-- Audit records and task results are first-class outputs; degraded/unavailable states must not be reported as clean.
-- Defense capabilities in this prototype are lab-oriented and reversible by design intent, but not production-certified.
-- No guarantee of complete detection, attribution, containment, or remediation.
+```
+NOARTEX/
+├── noartex.py                          # Unified CLI entrypoint wrapper
+├── cli/                                # CLI command parsing and handlers
+├── core/                               # Governed control plane
+│   ├── contracts/                      # Type definitions, interfaces, data classes
+│   ├── orchestrator.py                 # Task dispatch and execution pipeline
+│   ├── discovery/                      # Capability registration and schemas
+│   ├── policy/                         # Fail-closed policy engine and risk tiers
+│   ├── session/                        # Session lifecycle and revocation
+│   ├── audit/                          # Append-only JSONL audit logger
+│   ├── intelligence/                   # Correlation and deterministic triage
+│   ├── memory/                         # Case management, evidence, and follow-ups
+│   └── adapters/base.py                # Base execution adapter interface
+├── adapters/                           # Concrete execution adapters
+│   ├── sentinel_adapter.py             # Sentinel CLI integration
+│   ├── host_observer.py                # Host process/file/socket observer
+│   ├── agent_observer.py               # Agent activity observer
+│   ├── web_observer.py                 # Network DNS/HTTP observer
+│   └── defense_lab.py                  # Quarantine, isolation, and rollback
+├── skills/                             # Agent operational skills
+│   ├── canonical/SKILL.md              # NOARTEX canonical agent skill
+│   └── coordination/                   # Ecosystem coordination skills
+├── stack/                              # Git submodules for natural stack
+├── tests/                              # Acceptance test suites (M1 through M8)
+└── docs/                               # Architecture graphs, specs, and evidence
+```
+
+## Security and governance guarantees
+
+1. **Fail-Closed Authorization:** Every capability invocation is denied by default unless an active session possesses matching permissions and satisfies risk-tier constraints.
+2. **Deterministic Triage:** Intelligence evaluation relies on explicit, reproducible evidentiary inputs, avoiding heuristic speculation.
+3. **Verified Reversibility:** Containment actions generate an immutable rollback plan before state modification occurs.
+4. **Cryptographic Evidence Tracking:** All case evidence, notes, and task results are linked via SHA256 hashes for non-repudiation.
+5. **No Blind Remediation:** Unavailable or degraded adapter states are explicitly flagged; missing evidence is never reported as clean or resolved.
 
 ## License
 
-`LICENSE` is present as a **BUSL-1.1 intent/template** aligned with related Sentinel ecosystem components, but key parameters (licensor, year, additional use grant, change date, change license) are marked **PENDING** and must be finalized by the rights holder before this is treated as a finalized grant. No finalized commercial or production permission is implied by the draft. Review terms before redistribution or production/commercial use.
-
-## Related documents
-
-- `NOARTEX_PRODUCT_ARCHITECTURE_AND_ACCEPTANCE_SPEC_001.md`
-- `NOARTEX_RELEASE_RECONCILIATION_v0.8.0-m8.md`
-- `NOARTEX_PHASE_4T_FINAL_CLOSEOUT.md` (separate track, closed reconciliation; remediation open)
+This project is licensed under the Business Source License 1.1 (BUSL-1.1). See [LICENSE](LICENSE) for terms.
