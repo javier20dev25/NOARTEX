@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability Disclosure
+    url: https://github.com/javier20dev25/NOARTEX/security/advisories
+    about: Please report security vulnerabilities privately via GitHub Advisories or direct personal email to sleytherjavier2025@gmail.com (NOT via public issues).
+  - name: General / Agency Inquiries (NIGHTTRACE)
+    url: mailto:nighttracesec@gmail.com
+    about: For general inquiries, research collaboration, and coordination with NIGHTTRACE Security Intelligence.

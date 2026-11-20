@@ -4,54 +4,73 @@ on:
   push:
     branches: ["master", "main"]
   pull_request:
+    branches: ["master", "main"]
   workflow_dispatch:
 
 jobs:
-  tests:
-    runs-on: windows-latest
+  test-matrix:
+    name: Test (${{ matrix.os }}, Py ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.11", "3.12"]
     env:
       PYTHONIOENCODING: utf-8
+      NOARTEX_STRICT_FAIL_CLOSED: "1"
+
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
-      - name: Install test dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install jsonschema
 
-      - name: Smoke checks
+      - name: CLI Health & Smoke Doctor Check
         run: |
           python noartex.py --version
           python noartex.py --help
           python noartex.py doctor --format json
 
-      - name: Acceptance m1 (core)
+      - name: Acceptance M1 (Core Governance & Schema Validation)
         run: python tests/acceptance/m1/test_m1.py
 
-      - name: Acceptance m3 (observers)
+      - name: Acceptance M3 (Runtime Observers & Telemetry)
         run: python tests/acceptance/m3/test_m3.py
 
-      - name: Acceptance m4 (intelligence)
+      - name: Acceptance M4 (Intelligence, Correlator & Triage Engine)
         run: python tests/acceptance/m4/test_m4.py
 
-      - name: Acceptance m5 (policy/approvals/killswitch)
+      - name: Acceptance M5 (Fail-Closed Policy, Approvals & Kill-Switch)
         run: python tests/acceptance/m5/test_m5.py
 
-      - name: Acceptance m6 (defense lab)
+      - name: Acceptance M6 (Defense Lab & Governed Containment)
         run: python tests/acceptance/m6/test_m6.py
 
-      - name: Acceptance m7 (memory/cases)
+      - name: Acceptance M7 (Forensic Memory, Cases & SHA256 Hashes)
         run: python tests/acceptance/m7/test_m7.py
 
-      - name: Acceptance m8 (end-to-end integration)
+      - name: Acceptance M8 (Autonomous End-to-End Incident Pipeline)
         run: python tests/acceptance/m8/test_m8.py
 
-      # m2 depends on a locally available/configured Sentinel CLI for full execution paths;
-      # it is intentionally excluded from default CI to avoid environment-coupled failures.
+      - name: Acceptance M9-A (PriorityEventBus with Preemption)
+        run: python tests/acceptance/m9/test_reactive_pipeline.py
+
+      - name: Acceptance M9-B (Tetragon eBPF Stream Adapter & Ingestion)
+        run: python tests/acceptance/m9/test_tetragon_adapter.py
+
+      - name: Acceptance M9-C (Closed-Loop Real-Time Auto-Response)
+        run: python tests/acceptance/m9/test_realtime_integration.py
+
+      - name: Full Acceptance Discovery Regression
+        run: python -m unittest discover tests/acceptance

@@ -384,6 +384,26 @@ NOARTEX/
 4. **Cryptographic Evidence Tracking:** All case evidence, notes, and task results are linked via SHA256 hashes for non-repudiation.
 5. **No Blind Remediation:** Unavailable or degraded adapter states are explicitly flagged; missing evidence is never reported as clean or resolved.
 
+## Continuous improvement and community collaboration
+
+NOARTEX is actively developed as an open defensive capability plane to counter machine-speed autonomous malware threats (ARTEX class). We invite security researchers, systems programmers, and AI safety engineers to collaborate on the continuous improvement of the platform:
+
+- **Adapter Expansion:** Implementing telemetry integrations for Falco, OSQuery, Auditd, Cilium, and Windows Event Tracing (ETW).
+- **Policy Engine Hardening:** Formalizing capability lattice rules, mitigating adversarial multi-step capability chaining, and stress-testing R0-R3 boundaries.
+- **Runtime Performance:** Optimizing eBPF stream filtering latency, shared ring buffers, and event bus preemption under heavy load.
+- **Empirical Red Team Evaluation:** Benchmarking novel autonomous evasion and lateral movement vectors in hermetic defense lab environments.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full development guidelines, coding tenets, and contribution procedures.
+
+## Pull requests, issues, and vulnerability reporting
+
+- **Pull Requests:** Must adhere to conventional commit naming (`feat:`, `fix:`, `perf:`, `test:`, `docs:`), preserve fail-closed semantics, include zero emojis/marketing hype, and pass all acceptance suites (M1–M9) in CI without regressions.
+- **Public Issues:** Reserved for reproducible bugs, feature proposals (RFCs), and documentation updates. Follow the issue templates under `.github/ISSUE_TEMPLATE/`.
+- **Security Vulnerabilities (Private Disclosure):** Do NOT file public issues or pull requests for vulnerabilities, zero-days, or policy bypasses. Report security issues directly to the maintainer's personal email:
+  - **Personal Security Contact:** `sleytherjavier2025@gmail.com`
+  - **Alternative Channel:** Repository [GitHub Security Advisories](https://github.com/javier20dev25/NOARTEX/security/advisories)
+  - Detailed reporting instructions, SLA, and disclosure timelines are documented in [SECURITY.md](SECURITY.md).
+
 ## License
 
 This project is licensed under the Business Source License 1.1 (BUSL-1.1). See [LICENSE](LICENSE) for terms.
