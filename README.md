@@ -1,8 +1,10 @@
 # NOARTEX
 
+![NOARTEX](brand/noartex.jpg)
+
 Defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats.
 
-Release: `v0.9.0-m9` (Real-Time Reactive Defense)  
+Release: `v0.9.1` (Skills Library + Real-Time Reactive Defense)  
 Acceptance status: 125/125 tests passed (220/220 verification checks across milestones M1 through M9).  
 Ecosystem: Coordinates with Sentinel CLI, Sentinel Audit, Sentinel Oracle, and Sentinel Runtime.
 
@@ -346,6 +348,31 @@ Run the complete test suite:
 pytest tests/acceptance/m1/ tests/acceptance/m2/ tests/acceptance/m3/ tests/acceptance/m4/ tests/acceptance/m5/ tests/acceptance/m6/ tests/acceptance/m7/ tests/acceptance/m8/ -v
 ```
 
+## Skills library
+
+NOARTEX ships a library of general-purpose security skills that agents submit as governed tasks through the M4 intelligence pipeline. All skills are vendor-neutral, fail-closed by default, and independently implemented from open-source reference architectures.
+
+| Skill | Risk tier | Description |
+|---|---|---|
+| `structured-audit` | R2 | Six-phase structured security audit: reconnaissance, coverage mapping, vulnerability hunting, independent validation, structured findings, evidence verification. |
+| `agent-config-audit` | R1 | Static audit of agent instruction files, MCP server registrations, hook definitions, and permission manifests for secrets, excessive grants, and injection risk. |
+| `egress-audit` | R2 | Analysis of outbound network access patterns, exfiltration paths, egress control infrastructure gaps, and minimum required egress specification. |
+| `skill-inspection` | R2 | Vetting of third-party skills before registration: prompt injection detection, privilege escalation, exfiltration indicators, supply-chain risk. Produces APPROVE / CONDITIONAL / REJECT decision. |
+| `false-positive-review` | R1 | Structured workflow for validating or dismissing candidate findings with rationalization rejection rules and mandatory independent re-validation. |
+| `supply-chain-evaluation` | R2 | Lockfile integrity, package provenance, maintainer trust indicators, known-vulnerability cross-reference, and runtime fetch risk assessment. |
+| `process-isolation-audit` | R2 | Gap analysis of OS-level sandbox controls (filesystem, network, capabilities, resource limits) for agent-spawned processes against a least-privilege baseline. |
+
+Skills are located under `skills/<skill-name>/SKILL.md`. Each skill declares its risk tier and routes through the NOARTEX policy engine -- they add analytical knowledge but never bypass governance.
+
+Reference sources (concepts studied; code independently re-implemented under Apache-2.0):
+- Cloudflare security-audit-skill (MIT)
+- AgentShield (MIT, affaan-m/agentshield)
+- Pipelock (Apache-2.0, pipelab-org/pipelock)
+- NVIDIA SkillSpector (Apache-2.0)
+- Cisco AI Defense Skill Scanner (Apache-2.0)
+- Anthropic Sandbox Runtime (Apache-2.0)
+- Trail of Bits skills (CC BY-SA 4.0 -- concepts only, re-implemented independently)
+
 ## Repository structure
 
 ```
@@ -370,7 +397,14 @@ NOARTEX/
 │   └── defense_lab.py                  # Quarantine, isolation, and rollback
 ├── skills/                             # Agent operational skills
 │   ├── canonical/SKILL.md              # NOARTEX canonical agent skill
-│   └── coordination/                   # Ecosystem coordination skills
+│   ├── coordination/                   # Ecosystem coordination skills
+│   ├── structured-audit/               # Six-phase structured security audit (R2)
+│   ├── agent-config-audit/             # Agent configuration static audit (R1)
+│   ├── egress-audit/                   # Outbound network access analysis (R2)
+│   ├── skill-inspection/               # Third-party skill vetting (R2)
+│   ├── false-positive-review/          # Finding validation and disposition (R1)
+│   ├── supply-chain-evaluation/        # Package and dependency integrity (R2)
+│   └── process-isolation-audit/        # OS-level sandbox gap analysis (R2)
 ├── stack/                              # Git submodules for natural stack
 ├── tests/                              # Acceptance test suites (M1 through M8)
 └── docs/                               # Architecture graphs, specs, and evidence
