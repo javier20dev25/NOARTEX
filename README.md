@@ -1,6 +1,6 @@
 # NOARTEX
 
-<img src="brand/noartex.jpg" alt="NOARTEX" width="160" />
+![NOARTEX](brand/noartex.jpg)
 
 Defensive coordination and capability governance infrastructure for AI agents operating against autonomous adversarial threats.
 
