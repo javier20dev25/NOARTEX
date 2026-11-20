@@ -350,7 +350,9 @@ pytest tests/acceptance/m1/ tests/acceptance/m2/ tests/acceptance/m3/ tests/acce
 
 ## Skills library
 
-NOARTEX ships a library of general-purpose security skills that agents submit as governed tasks through the M4 intelligence pipeline. All skills are vendor-neutral, fail-closed by default, and independently implemented from open-source reference architectures.
+NOARTEX ships a library of 12 general-purpose security skills submitted as governed tasks through the M4 intelligence pipeline and M6 defense lab. All skills are vendor-neutral, fail-closed by default, and independently implemented from open-source reference architectures.
+
+### Static audit and supply chain
 
 | Skill | Risk tier | Description |
 |---|---|---|
@@ -362,16 +364,21 @@ NOARTEX ships a library of general-purpose security skills that agents submit as
 | `supply-chain-evaluation` | R2 | Lockfile integrity, package provenance, maintainer trust indicators, known-vulnerability cross-reference, and runtime fetch risk assessment. |
 | `process-isolation-audit` | R2 | Gap analysis of OS-level sandbox controls (filesystem, network, capabilities, resource limits) for agent-spawned processes against a least-privilege baseline. |
 
+### Real-time defense and autonomous operations
+
+| Skill | Risk tier | Description |
+|---|---|---|
+| `threat-hunt` | R2 | Hypothesis-driven threat hunting across endpoint telemetry, process lineages, socket activity, and memory artifacts. Separates sensor, adversary, and third-party evidence. |
+| `observable-enrichment` | R1 | Deep observable investigation and multi-source enrichment for IP addresses, domains, file hashes, and URLs. Implements structured analyzer contracts; never assumes unlisted items are benign. |
+| `active-response` | R3 | Governed real-time active defense response execution: process suspension, socket severance, IP blocking, token revocation, quarantine with pre-computed rollback plans and auto-reversion. |
+| `investigation-ledger` | R1 | Cryptographically verifiable investigation ledger for active security incidents. Records tool invocations, evidentiary citations, analyst hypotheses, and groundedness metrics. |
+| `runtime-anomaly-detection` | R2 | Continuous runtime behavioral anomaly detection evaluating streaming syscalls (execve, openat2, connect) against declarative behavioral security invariants. |
+
 Skills are located under `skills/<skill-name>/SKILL.md`. Each skill declares its risk tier and routes through the NOARTEX policy engine -- they add analytical knowledge but never bypass governance.
 
 Reference sources (concepts studied; code independently re-implemented under Apache-2.0):
-- Cloudflare security-audit-skill (MIT)
-- AgentShield (MIT, affaan-m/agentshield)
-- Pipelock (Apache-2.0, pipelab-org/pipelock)
-- NVIDIA SkillSpector (Apache-2.0)
-- Cisco AI Defense Skill Scanner (Apache-2.0)
-- Anthropic Sandbox Runtime (Apache-2.0)
-- Trail of Bits skills (CC BY-SA 4.0 -- concepts only, re-implemented independently)
+- Static Audit & Vetting: Cloudflare security-audit-skill (MIT), AgentShield (MIT), Pipelock (Apache-2.0), NVIDIA SkillSpector (Apache-2.0), Cisco AI Defense Skill Scanner (Apache-2.0), Anthropic Sandbox Runtime (Apache-2.0), Trail of Bits skills (CC BY-SA 4.0 -- concepts studied, re-implemented independently).
+- Real-Time Defense & Autonomous SOC: Vigil SOC (Apache-2.0, autonomous specialists and evidence provenance), AiSOC (MIT, investigation ledger and groundedness verification), Wazuh (GPL-2.0, active response and rollback leases), TheHive & Cortex Analyzers (AGPL-3.0/GPL-3.0, observable enrichment contracts), Falco & Tetragon (Apache-2.0, runtime behavioral invariants and eBPF stream telemetry).
 
 ## Repository structure
 
@@ -394,7 +401,8 @@ NOARTEX/
 │   ├── host_observer.py                # Host process/file/socket observer
 │   ├── agent_observer.py               # Agent activity observer
 │   ├── web_observer.py                 # Network DNS/HTTP observer
-│   └── defense_lab.py                  # Quarantine, isolation, and rollback
+│   ├── defense_lab.py                  # Quarantine, isolation, and rollback
+│   └── tetragon_stream.py              # Real-time eBPF kernel stream adapter
 ├── skills/                             # Agent operational skills
 │   ├── canonical/SKILL.md              # NOARTEX canonical agent skill
 │   ├── coordination/                   # Ecosystem coordination skills
@@ -404,9 +412,14 @@ NOARTEX/
 │   ├── skill-inspection/               # Third-party skill vetting (R2)
 │   ├── false-positive-review/          # Finding validation and disposition (R1)
 │   ├── supply-chain-evaluation/        # Package and dependency integrity (R2)
-│   └── process-isolation-audit/        # OS-level sandbox gap analysis (R2)
+│   ├── process-isolation-audit/        # OS-level sandbox gap analysis (R2)
+│   ├── threat-hunt/                    # Hypothesis-driven telemetry threat hunting (R2)
+│   ├── observable-enrichment/          # Multi-source observable investigation (R1)
+│   ├── active-response/                # Reversible automated containment actions (R3)
+│   ├── investigation-ledger/           # Cryptographic evidence & groundedness ledger (R1)
+│   └── runtime-anomaly-detection/      # eBPF/syscall behavioral invariant matching (R2)
 ├── stack/                              # Git submodules for natural stack
-├── tests/                              # Acceptance test suites (M1 through M8)
+├── tests/                              # Acceptance test suites (M1 through M9)
 └── docs/                               # Architecture graphs, specs, and evidence
 ```
 
