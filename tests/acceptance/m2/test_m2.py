@@ -38,9 +38,39 @@ results: list[dict] = []
 TEST_DATA_DIR = str(ROOT / "data" / "test_m2")
 
 
+def _ensure_mock_sentinel_in_path():
+    import shutil
+    if shutil.which("sentinel") or shutil.which("sentinel.cmd"):
+        return
+    bin_dir = Path(TEST_DATA_DIR) / "mock_bin"
+    bin_dir.mkdir(parents=True, exist_ok=True)
+    mock_py = bin_dir / "_mock_sentinel.py"
+    mock_py.write_text(
+        "import sys, json\n"
+        "if '-V' in sys.argv:\n"
+        "    print('Sentinel v1.0.0-ci-mock')\n"
+        "    sys.exit(0)\n"
+        "print(json.dumps({'findings': [], 'host': {'hostname': 'mock'}}))\n"
+        "sys.exit(0)\n",
+        encoding="utf-8"
+    )
+    if sys.platform == "win32":
+        cmd_file = bin_dir / "sentinel.cmd"
+        cmd_file.write_text(f'@"{sys.executable}" "{mock_py}" %*\n', encoding="utf-8")
+    else:
+        sh_file = bin_dir / "sentinel"
+        sh_file.write_text(f'#!/bin/sh\nexec "{sys.executable}" "{mock_py}" "$@"\n', encoding="utf-8")
+        sh_file.chmod(0o755)
+    os.environ["PATH"] = str(bin_dir) + os.pathsep + os.environ.get("PATH", "")
+
+
+_ensure_mock_sentinel_in_path()
+
+
 def run(args: list[str], extra_env: Optional[dict] = None) -> tuple[int, str, str]:
     env = os.environ.copy()
     env["NOARTEX_DATA_DIR"] = TEST_DATA_DIR
+    env["PATH"] = os.environ["PATH"]
     if extra_env:
         env.update(extra_env)
     proc = subprocess.run(
